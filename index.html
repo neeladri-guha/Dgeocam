@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>GeoCam</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Share+Tech+Mono&display=swap');
+
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+  :root {
+    --g: #ff1f1f;
+    --gd: #cc0000;
+    --glow: rgba(255,31,31,0.35);
+    --bg: #080808;
+    --card: rgba(20,0,0,0.95);
+    --border: rgba(255,31,31,0.25);
+    --txt: #ffffff;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--txt);
+    font-family: 'Share Tech Mono', monospace;
+    overflow: hidden;
+  }
+
+  #app {
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    height: 100vh;
+  }
+
+  #topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 14px 8px;
+    background: #0d0d0d;
+    border-bottom: 2px solid var(--g);
+    flex-shrink: 0;
+    z-index: 10;
+    gap: 10px;
+  }
+
+  /* Logo slot */
+  #logo-slot {
+    width: 38px;
+    height: 38px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: rgba(255,31,31,0.07);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  #logo-slot img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: none; /* shown when src is set */
+  }
+  #logo-slot .logo-placeholder {
+    font-size: 0.45rem;
+    color: rgba(255,31,31,0.4);
+    text-align: center;
+    letter-spacing: .05em;
+    line-height: 1.4;
+    font-family: 'Orbitron', monospace;
+  }
+
+  #topbar-center {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  #topbar h1 {
+    font-family: 'Orbitron', monospace;
+    font-size: 1.25rem;
+    font-weight: 900;
+    letter-spacing: .2em;
+    color: var(--g);
+    text-shadow: 0 0 18px var(--glow), 0 0 40px rgba(255,31,31,0.15);
+    line-height: 1;
+  }
+
+  #topbar-sub {
+    font-size: 0.52rem;
+    letter-spacing: .18em;
+    color: rgba(255,255,255,0.25);
+    margin-top: 2px;
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  #gps-status {
+    font-size: 0.62rem;
+    letter-spacing: .06em;
+    color: rgba(255,255,255,0.4);
+    text-align: right;
+    line-height: 1.5;
+    flex-shrink: 0;
+  }
+  #gps-status span { color: var(--g); }
+
+  #vf {
+    position: relative;
+    flex: 1;
+    overflow: hidden;
+    background: #000;
+  }
+
+  #video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  #vf::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg, transparent, transparent 3px,
+      rgba(255,31,31,0.012) 3px, rgba(255,31,31,0.012) 4px
+    );
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .corner {
+    position: absolute;
+    width: 22px; height: 22px;
+    border-color: var(--g);
+    border-style: solid;
+    z-index: 3;
+    opacity: .9;
+  }
+  .corner.tl { top:12px; left:12px; border-width:2px 0 0 2px; }
+  .corner.tr { top:12px; right:12px; border-width:2px 2px 0 0; }
+  .corner.bl { bottom:12px; left:12px; border-width:0 0 2px 2px; }
+  .corner.br { bottom:12px; right:12px; border-width:0 2px 2px 0; }
+
+  #xhair {
+    position: absolute;
+    top:50%; left:50%;
+    transform: translate(-50%,-50%);
+    z-index:3; pointer-events:none;
+    width:36px; height:36px;
+  }
+  #xhair::before, #xhair::after {
+    content:''; position:absolute; background:rgba(255,31,31,.6);
+  }
+  #xhair::before { width:1px; height:100%; left:50%; }
+  #xhair::after  { width:100%; height:1px; top:50%; }
+
+  #live-tag {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    z-index: 4;
+    background: linear-gradient(transparent, rgba(0,0,0,.82));
+    padding: 24px 12px 10px;
+    font-size: 0.62rem;
+    line-height: 1.8;
+    color: #fff;
+    pointer-events: none;
+  }
+  #live-tag #lt-coords {
+    color: var(--g);
+    font-weight: bold;
+  }
+  #live-tag .addr {
+    color: rgba(255,255,255,.65);
+    font-size: 0.58rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  #controls {
+    flex-shrink: 0;
+    background: #0d0d0d;
+    border-top: 2px solid var(--g);
+    padding: 14px 20px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    z-index: 10;
+  }
+
+  .ctrl-btn {
+    background: #111;
+    border: 1px solid var(--border);
+    color: #fff;
+    font-family: 'Orbitron', monospace;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: .1em;
+    padding: 10px 14px;
+    border-radius: 3px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background .15s, box-shadow .15s, border-color .15s;
+  }
+  .ctrl-btn:active {
+    background: rgba(255,31,31,.15);
+    border-color: var(--g);
+    box-shadow: 0 0 16px var(--glow);
+  }
+
+  #btnCapture {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    border: 3px solid var(--g);
+    background: rgba(255,31,31,.08);
+    box-shadow: 0 0 24px var(--glow), inset 0 0 12px rgba(255,31,31,.1);
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform .1s, box-shadow .1s;
+  }
+  #btnCapture:active {
+    transform: scale(.93);
+    box-shadow: 0 0 44px var(--glow);
+  }
+  #btnCapture.disabled { opacity: .3; pointer-events: none; }
+  .shutter-inner {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: var(--g);
+    box-shadow: 0 0 16px var(--glow);
+  }
+
+  #flash {
+    position: fixed; inset:0;
+    background: #fff;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 999;
+    transition: opacity .06s;
+  }
+
+  /* WhatsApp overlay */
+  #wa-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.88);
+    z-index: 500;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+  }
+  #wa-overlay.show { display: flex; }
+  #wa-overlay .wa-box {
+    background: #111;
+    border: 1px solid var(--g);
+    border-top: 3px solid var(--g);
+    border-radius: 6px;
+    padding: 28px 32px;
+    text-align: center;
+    max-width: 300px;
+    width: 90%;
+    box-shadow: 0 0 40px rgba(255,31,31,0.2);
+  }
+  #wa-overlay .wa-icon {
+    font-size: 3rem;
+    margin-bottom: 10px;
+  }
+  #wa-overlay h2 {
+    font-family: 'Orbitron', monospace;
+    font-size: .85rem;
+    color: #fff;
+    letter-spacing: .14em;
+    margin-bottom: 6px;
+  }
+  #wa-overlay .wa-divider {
+    width: 40px; height: 2px;
+    background: var(--g);
+    margin: 8px auto 12px;
+    border-radius: 1px;
+  }
+  #wa-overlay p {
+    font-size: .65rem;
+    color: rgba(255,255,255,.5);
+    line-height: 1.7;
+    margin-bottom: 18px;
+  }
+  #wa-overlay .wa-num {
+    color: var(--g);
+    font-size: .78rem;
+    letter-spacing: .06em;
+    font-weight: bold;
+  }
+  .wa-btn {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    margin-top: 8px;
+    font-family: 'Orbitron', monospace;
+    font-size: .65rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+    border-radius: 3px;
+    cursor: pointer;
+    border: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .wa-btn.open {
+    background: #25D366;
+    color: #fff;
+    box-shadow: 0 0 16px rgba(37,211,102,0.35);
+  }
+  .wa-btn.skip {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,.15);
+    color: rgba(255,255,255,.35);
+    margin-top: 6px;
+  }
+  .wa-btn.skip:active { background: rgba(255,255,255,.05); }
+
+  /* Gallery drawer */
+  #gallery-wrap {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 50;
+    transform: translateY(100%);
+    transition: transform .35s cubic-bezier(.4,0,.2,1);
+    background: #0a0a0a;
+    border-top: 2px solid var(--g);
+    border-radius: 14px 14px 0 0;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+  }
+  #gallery-wrap.open { transform: translateY(0); }
+
+  #gallery-handle {
+    text-align: center;
+    padding: 10px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  #gallery-handle::before {
+    content:'';
+    display: inline-block;
+    width: 36px; height: 4px;
+    background: rgba(255,31,31,.4);
+    border-radius: 2px;
+  }
+
+  #gallery-title {
+    font-family: 'Orbitron', monospace;
+    font-size: .7rem;
+    letter-spacing: .18em;
+    color: rgba(255,31,31,.7);
+    padding: 0 14px 8px;
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 10px;
+  }
+
+  #gallery-scroll {
+    overflow-y: auto;
+    padding: 0 12px 20px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .g-item {
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    background: #000;
+  }
+  .g-item img {
+    width:100%; display:block;
+    aspect-ratio: 4/3;
+    object-fit: cover;
+  }
+  .g-meta {
+    padding: 5px 7px;
+    font-size: 0.55rem;
+    line-height: 1.6;
+    color: rgba(255,255,255,.45);
+    background: #0d0d0d;
+  }
+  .g-meta strong { color: var(--g); display:block; }
+
+  .g-actions {
+    display: flex;
+    border-top: 1px solid var(--border);
+  }
+  .g-dl, .g-wa {
+    flex: 1;
+    padding: 6px 4px;
+    background: rgba(255,31,31,.06);
+    border: none;
+    color: #fff;
+    font-family: 'Orbitron', monospace;
+    font-size: .5rem;
+    letter-spacing: .08em;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .g-dl:active { background: rgba(255,31,31,.2); }
+  .g-wa {
+    background: rgba(37,211,102,.06);
+    color: #25D366;
+    border-left: 1px solid var(--border);
+  }
+  .g-wa:active { background: rgba(37,211,102,.18); }
+
+  #no-photos {
+    grid-column: span 2;
+    text-align: center;
+    color: rgba(255,255,255,.15);
+    font-size: .7rem;
+    padding: 30px 0;
+  }
+
+  #toast {
+    position: fixed;
+    top: 60px; left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255,31,31,.12);
+    border: 1px solid var(--g);
+    color: #fff;
+    font-size: .7rem;
+    letter-spacing: .08em;
+    padding: 8px 18px;
+    border-radius: 3px;
+    z-index: 600;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .3s;
+    white-space: nowrap;
+  }
+  #toast.show { opacity:1; }
+
+  canvas { display:none; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div id="topbar">
+    <!-- LOGO SLOT: replace src="" with your logo image path/URL -->
+    <div id="logo-slot">
+      <img id="logo-img" src="logo.png" alt="Logo">
+      <div class="logo-placeholder">YOUR<br>LOGO</div>
+    </div>
+
+    <div id="topbar-center">
+      <h1>GEOCAM</h1>
+      <div id="topbar-sub">FIELD CAPTURE SYSTEM</div>
+    </div>
+
+    <div id="gps-status">
+      <span id="gps-label">● ACQUIRING...</span>
+    </div>
+  </div>
+
+  <div id="vf">
+    <video id="video" autoplay playsinline muted webkit-playsinline></video>
+    <div class="corner tl"></div>
+    <div class="corner tr"></div>
+    <div class="corner bl"></div>
+    <div class="corner br"></div>
+    <div id="xhair"></div>
+    <div id="live-tag">
+      <div id="lt-coords">LAT: — &nbsp;|&nbsp; LNG: —</div>
+      <div class="addr" id="lt-addr">Address: locating...</div>
+    </div>
+  </div>
+
+  <div id="controls">
+    <button class="ctrl-btn" id="btnGallery">
+      ⊞ GALLERY<br>
+      <span id="photo-count" style="font-size:.55rem;opacity:.5;color:#fff">0 photos</span>
+    </button>
+    <div id="btnCapture" class="disabled">
+      <div class="shutter-inner"></div>
+    </div>
+    <button class="ctrl-btn" id="btnSwitch">
+      ⇄ FLIP<br>
+      <span style="font-size:.55rem;opacity:.5;color:#fff">camera</span>
+    </button>
+  </div>
+
+</div>
+
+<!-- WhatsApp overlay -->
+<div id="wa-overlay">
+  <div class="wa-box">
+    <div class="wa-icon">📸</div>
+    <h2>PHOTO CAPTURED</h2>
+    <div class="wa-divider"></div>
+    <p>
+      Photo saved to your device.<br>
+      Send location details to:<br>
+      <span class="wa-num">+91 82401 47908</span>
+    </p>
+    <button class="wa-btn open" id="waOpenBtn">
+      ✓ OPEN WHATSAPP &amp; SEND
+    </button>
+    <button class="wa-btn skip" id="waSkipBtn">
+      SKIP
+    </button>
+  </div>
+</div>
+
+<!-- Gallery drawer -->
+<div id="gallery-wrap">
+  <div id="gallery-handle"></div>
+  <div id="gallery-title">▣ CAPTURED — <span id="gc-count">0</span> photos</div>
+  <div id="gallery-scroll">
+    <div id="no-photos">No captures yet</div>
+  </div>
+</div>
+
+<div id="flash"></div>
+<div id="toast"></div>
+<canvas id="canvas"></canvas>
+
+<script>
+// ── Config ───────────────────────────────────────────────
+const WA_NUMBER = '918240147908';
+
+// ── Logo auto-show if src set ────────────────────────────
+const logoImg = document.getElementById('logo-img');
+const logoPlaceholder = document.querySelector('.logo-placeholder');
+if (logoImg.src && logoImg.src !== window.location.href) {
+  logoImg.style.display = 'block';
+  logoPlaceholder.style.display = 'none';
+}
+
+// ── Globals ──────────────────────────────────────────────
+let stream      = null;
+let facingMode  = 'environment';
+let gps         = null;
+let address     = '';
+let photoCount  = 0;
+let pendingWAMsg = '';
+let pendingDataURL = '';
+
+const video         = document.getElementById('video');
+const canvas        = document.getElementById('canvas');
+const ctx           = canvas.getContext('2d');
+const btnCapture    = document.getElementById('btnCapture');
+const btnSwitch     = document.getElementById('btnSwitch');
+const btnGallery    = document.getElementById('btnGallery');
+const flash         = document.getElementById('flash');
+const galleryWrap   = document.getElementById('gallery-wrap');
+const galleryScroll = document.getElementById('gallery-scroll');
+const noPhotos      = document.getElementById('no-photos');
+const waOverlay     = document.getElementById('wa-overlay');
+
+// ── Toast ────────────────────────────────────────────────
+function toast(msg, duration = 2200) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), duration);
+}
+
+// ── Camera ───────────────────────────────────────────────
+async function startCamera() {
+  try {
+    if (stream) stream.getTracks().forEach(t => t.stop());
+    stream = await navigator.mediaDevices.getUserMedia({
+      audio: false,
+      video: { facingMode: { ideal: facingMode }, width: { ideal: 3840 }, height: { ideal: 2160 } }
+    });
+    video.srcObject = stream;
+    video.onloadedmetadata = () => {
+      video.play().catch(() => {});
+      btnCapture.classList.remove('disabled');
+      toast('CAMERA READY');
+    };
+  } catch (e) {
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+      video.srcObject = stream;
+      video.onloadedmetadata = () => {
+        video.play().catch(() => {});
+        btnCapture.classList.remove('disabled');
+        toast('CAMERA READY');
+      };
+    } catch (e2) {
+      toast('⚠ Camera blocked: ' + e2.message, 4000);
+    }
+  }
+}
+
+// ── GPS + Reverse Geocode ────────────────────────────────
+function startGPS() {
+  if (!navigator.geolocation) { toast('⚠ GPS not supported'); return; }
+
+  navigator.geolocation.watchPosition(async pos => {
+    gps = { lat: pos.coords.latitude, lng: pos.coords.longitude, acc: pos.coords.accuracy };
+    const fmt = n => n.toFixed(6);
+    document.getElementById('lt-coords').textContent = `LAT: ${fmt(gps.lat)}°  |  LNG: ${fmt(gps.lng)}°`;
+    document.getElementById('gps-label').textContent = `● GPS ±${gps.acc.toFixed(0)}m`;
+
+    try {
+      const r = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?lat=${gps.lat}&lon=${gps.lng}&format=json`,
+        { headers: { 'Accept-Language': 'en' } }
+      );
+      const data = await r.json();
+      const a = data.address || {};
+      address = [a.road || a.suburb, a.city || a.town || a.village || a.county, a.country].filter(Boolean).join(', ');
+      document.getElementById('lt-addr').textContent = address || data.display_name || '';
+    } catch {
+      address = `${fmt(gps.lat)}, ${fmt(gps.lng)}`;
+      document.getElementById('lt-addr').textContent = 'Address unavailable';
+    }
+  }, err => {
+    document.getElementById('gps-label').innerHTML = `<span style="color:#ff5252">● GPS ERROR</span>`;
+    toast('GPS: ' + err.message, 3500);
+  }, { enableHighAccuracy: true, maximumAge: 3000, timeout: 20000 });
+}
+
+// ── Capture ──────────────────────────────────────────────
+function capture() {
+  if (btnCapture.classList.contains('disabled')) return;
+
+  const W = video.videoWidth  || video.offsetWidth  || 1280;
+  const H = video.videoHeight || video.offsetHeight || 960;
+  canvas.width = W; canvas.height = H;
+
+  if (facingMode === 'user') {
+    ctx.save(); ctx.translate(W, 0); ctx.scale(-1, 1);
+    ctx.drawImage(video, 0, 0, W, H); ctx.restore();
+  } else {
+    ctx.drawImage(video, 0, 0, W, H);
+  }
+
+  stampGeoTag(W, H);
+
+  flash.style.opacity = '.9';
+  setTimeout(() => flash.style.opacity = '0', 100);
+
+  const dataURL = canvas.toDataURL('image/jpeg', 0.93);
+  pendingDataURL = dataURL;
+
+  triggerDownload(dataURL);
+
+  const lat     = gps ? gps.lat.toFixed(6) : 'N/A';
+  const lng     = gps ? gps.lng.toFixed(6) : 'N/A';
+  const acc     = gps ? `±${gps.acc.toFixed(0)}m` : '';
+  const now     = new Date();
+  const dateStr = now.toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'});
+  const timeStr = now.toLocaleTimeString('en-GB');
+
+  pendingWAMsg = encodeURIComponent(
+`📍 *GeoCam Photo*
+━━━━━━━━━━━━━━
+🌐 LAT: ${lat}°
+🌐 LNG: ${lng}°
+📏 Accuracy: ${acc}
+🏠 ${address || 'Address unavailable'}
+📅 ${dateStr} — ${timeStr}
+━━━━━━━━━━━━━━
+🗺 Google Maps: https://maps.google.com/?q=${lat},${lng}`
+  );
+
+  saveToGallery(dataURL);
+  waOverlay.classList.add('show');
+}
+
+// ── WhatsApp ─────────────────────────────────────────────
+function openWhatsApp() {
+  waOverlay.classList.remove('show');
+  window.open(`https://wa.me/${WA_NUMBER}?text=${pendingWAMsg}`, '_blank');
+  toast('📲 Opening WhatsApp...', 2500);
+}
+
+document.getElementById('waOpenBtn').addEventListener('click', openWhatsApp);
+document.getElementById('waSkipBtn').addEventListener('click', () => {
+  waOverlay.classList.remove('show');
+  toast('Skipped WhatsApp');
+});
+
+// ── GeoTag Stamp ─────────────────────────────────────────
+function stampGeoTag(W, H) {
+  const scale   = W / 1080;
+  const pad     = 20 * scale;
+  const lat     = gps ? gps.lat.toFixed(6) : 'N/A';
+  const lng     = gps ? gps.lng.toFixed(6) : 'N/A';
+  const acc     = gps ? `±${gps.acc.toFixed(0)}m` : '';
+  const addr    = address || '';
+  const now     = new Date();
+  const dateStr = now.toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'});
+  const timeStr = now.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+
+  const barH = 130 * scale;
+
+  // Dark bar
+  ctx.fillStyle = 'rgba(0,0,0,0.75)';
+  ctx.fillRect(0, H - barH, W, barH);
+
+  // Red accent line
+  ctx.fillStyle = '#ff1f1f';
+  ctx.fillRect(0, H - barH, W, 3 * scale);
+
+  // Corner brackets
+  const bLen = 32 * scale, bW = 2.5 * scale;
+  ctx.fillStyle = '#ff1f1f';
+  [[0,0],[W,0],[0,H-barH-2*scale],[W,H-barH-2*scale]].forEach(([cx,cy],i) => {
+    const xDir = cx===0?1:-1, yDir = i<2?1:-1;
+    ctx.fillRect(cx, cy, xDir*bLen, bW*yDir);
+    ctx.fillRect(cx, cy, bW*xDir, yDir*bLen);
+  });
+
+  const fBig   = Math.max(26*scale, 14);
+  const fMed   = Math.max(21*scale, 12);
+  const fSmall = Math.max(17*scale, 10);
+  const baseY  = H - barH + 36*scale;
+
+  // Coords — white text
+  ctx.font = `bold ${fBig}px "Courier New", monospace`;
+  ctx.fillStyle = '#ffffff';
+  ctx.textAlign = 'left';
+  ctx.fillText(`LAT  ${lat}°`, pad, baseY);
+  ctx.fillText(`LNG  ${lng}°`, pad, baseY + fBig*1.35);
+
+  // Accuracy — dim white
+  ctx.font = `${fSmall}px "Courier New", monospace`;
+  ctx.fillStyle = 'rgba(255,255,255,.5)';
+  ctx.fillText(`ACC: ${acc}`, pad, baseY + fBig*2.7);
+
+  // Address
+  ctx.font = `${fSmall}px "Courier New", monospace`;
+  ctx.fillStyle = 'rgba(255,255,255,.7)';
+  const maxW = W * 0.95;
+  let addrText = addr;
+  while (addrText.length > 4 && ctx.measureText(addrText).width > maxW) addrText = addrText.slice(0,-4)+'...';
+  ctx.fillText(addrText, pad, baseY + fBig*3.8);
+
+  // Date / time — right side red
+  ctx.textAlign = 'right';
+  ctx.font = `bold ${fMed}px "Courier New", monospace`;
+  ctx.fillStyle = '#ff1f1f';
+  ctx.fillText(dateStr, W-pad, baseY);
+  ctx.fillText(timeStr, W-pad, baseY + fMed*1.35);
+
+  ctx.font = `${fSmall}px "Courier New", monospace`;
+  ctx.fillStyle = 'rgba(255,255,255,.35)';
+  ctx.fillText('GEOCAM v2.0', W-pad, baseY + fMed*2.7);
+  ctx.textAlign = 'left';
+}
+
+// ── Download ─────────────────────────────────────────────
+function triggerDownload(dataURL) {
+  const filename = `GeoCam_${Date.now()}.jpg`;
+  try {
+    const a = document.createElement('a');
+    a.href = dataURL; a.download = filename;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    toast('📥 PHOTO SAVED');
+  } catch {
+    try {
+      const byteStr = atob(dataURL.split(',')[1]);
+      const ab = new ArrayBuffer(byteStr.length);
+      const ia = new Uint8Array(ab);
+      for (let i=0; i<byteStr.length; i++) ia[i] = byteStr.charCodeAt(i);
+      const blob = new Blob([ab], {type:'image/jpeg'});
+      const url  = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = filename;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+      toast('📥 PHOTO SAVED');
+    } catch {
+      toast('⚠ Tap & hold image to save', 3500);
+    }
+  }
+}
+
+// ── In-app Gallery ───────────────────────────────────────
+function saveToGallery(dataURL) {
+  photoCount++;
+  document.getElementById('photo-count').textContent = photoCount + ' photo' + (photoCount!==1?'s':'');
+  document.getElementById('gc-count').textContent = photoCount;
+  noPhotos.style.display = 'none';
+
+  const lat  = gps ? gps.lat.toFixed(5)+'°' : 'N/A';
+  const lng  = gps ? gps.lng.toFixed(5)+'°' : 'N/A';
+  const time = new Date().toLocaleTimeString('en-GB');
+
+  const item = document.createElement('div');
+  item.className = 'g-item';
+  item.innerHTML = `
+    <img src="${dataURL}" loading="lazy">
+    <div class="g-meta">
+      <strong>#${String(photoCount).padStart(3,'0')} · ${time}</strong>
+      ${lat}<br>${lng}<br>
+      <span style="color:rgba(255,255,255,.3);font-size:.5rem">${(address||'').slice(0,40)}</span>
+    </div>
+    <div class="g-actions">
+      <button class="g-dl">↓ SAVE</button>
+      <button class="g-wa">📲 WHATSAPP</button>
+    </div>
+  `;
+
+  item.querySelector('.g-dl').addEventListener('click', () => triggerDownload(dataURL));
+  item.querySelector('.g-wa').addEventListener('click', () => {
+    pendingWAMsg = encodeURIComponent(
+`📍 *GeoCam Photo*
+━━━━━━━━━━━━━━
+🌐 LAT: ${gps?gps.lat.toFixed(6):'N/A'}°
+🌐 LNG: ${gps?gps.lng.toFixed(6):'N/A'}°
+🏠 ${address||'N/A'}
+📅 ${new Date().toLocaleString('en-GB')}
+━━━━━━━━━━━━━━
+🗺 https://maps.google.com/?q=${gps?gps.lat:0},${gps?gps.lng:0}`
+    );
+    window.open(`https://wa.me/${WA_NUMBER}?text=${pendingWAMsg}`, '_blank');
+  });
+
+  galleryScroll.prepend(item);
+}
+
+// ── Gallery Open/Close ───────────────────────────────────
+btnGallery.addEventListener('click', () => galleryWrap.classList.add('open'));
+document.getElementById('gallery-handle').addEventListener('click', () => galleryWrap.classList.remove('open'));
+galleryWrap.addEventListener('click', e => { if(e.target===galleryWrap) galleryWrap.classList.remove('open'); });
+
+// ── Switch Camera ────────────────────────────────────────
+btnSwitch.addEventListener('click', () => {
+  facingMode = facingMode==='environment'?'user':'environment';
+  startCamera();
+});
+
+// ── Shutter ──────────────────────────────────────────────
+btnCapture.addEventListener('click', capture);
+
+// ── Init ─────────────────────────────────────────────────
+startCamera();
+startGPS();
+</script>
+</body>
+</html>
