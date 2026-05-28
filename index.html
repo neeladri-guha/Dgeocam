@@ -12,13 +12,13 @@
   *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
   :root {
-    --g: #ff1f1f;
-    --gd: #cc0000;
-    --glow: rgba(255,31,31,0.35);
-    --bg: #080808;
-    --card: rgba(20,0,0,0.95);
-    --border: rgba(255,31,31,0.25);
-    --txt: #ffffff;
+    --g: #e53935;
+    --gd: #b71c1c;
+    --glow: rgba(229,57,53,0.35);
+    --bg: #0a0a0a;
+    --card: rgba(20,0,0,0.92);
+    --border: rgba(229,57,53,0.25);
+    --txt: #fff0f0;
   }
 
   html, body {
@@ -40,111 +40,68 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 8px 14px 8px;
-    background: #0d0d0d;
-    border-bottom: 2px solid var(--g);
+    padding: 10px 14px 6px;
+    background: rgba(0,0,0,0.85);
+    border-bottom: 1px solid var(--border);
     flex-shrink: 0;
     z-index: 10;
+  }
+
+  #topbar-left {
+    display: flex;
+    align-items: center;
     gap: 10px;
   }
 
-  /* Logo slot */
   #logo-slot {
-    width: 38px;
-    height: 38px;
+    width: 36px; height: 36px;
     border: 1px solid var(--border);
     border-radius: 4px;
-    background: rgba(255,31,31,0.07);
+    background: rgba(229,57,53,0.08);
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
     flex-shrink: 0;
+    cursor: pointer;
   }
-  #logo-slot img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    display: none; /* shown when src is set */
-  }
+  #logo-slot img { width:100%; height:100%; object-fit:cover; display:none; }
+  #logo-slot img.loaded { display:block; }
   #logo-slot .logo-placeholder {
-    font-size: 0.45rem;
-    color: rgba(255,31,31,0.4);
-    text-align: center;
-    letter-spacing: .05em;
-    line-height: 1.4;
-    font-family: 'Orbitron', monospace;
+    font-size:0.42rem; color:rgba(229,57,53,0.4);
+    letter-spacing:.05em; text-align:center; line-height:1.3; pointer-events:none;
   }
-
-  #topbar-center {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-  }
+  #logo-input { display:none; }
 
   #topbar h1 {
     font-family: 'Orbitron', monospace;
-    font-size: 1.25rem;
-    font-weight: 900;
-    letter-spacing: .2em;
-    color: var(--g);
-    text-shadow: 0 0 18px var(--glow), 0 0 40px rgba(255,31,31,0.15);
-    line-height: 1;
+    font-size: 1.3rem; font-weight: 900;
+    letter-spacing: .18em; color: #ffffff;
+    text-shadow: 0 0 16px var(--glow);
   }
-
-  #topbar-sub {
-    font-size: 0.52rem;
-    letter-spacing: .18em;
-    color: rgba(255,255,255,0.25);
-    margin-top: 2px;
-    font-family: 'Share Tech Mono', monospace;
-  }
+  #topbar h1 span { color: var(--g); }
 
   #gps-status {
-    font-size: 0.62rem;
-    letter-spacing: .06em;
-    color: rgba(255,255,255,0.4);
-    text-align: right;
-    line-height: 1.5;
-    flex-shrink: 0;
+    font-size: 0.65rem; letter-spacing: .06em;
+    color: rgba(255,240,240,0.45); text-align:right; line-height:1.5;
   }
   #gps-status span { color: var(--g); }
 
   #vf {
-    position: relative;
-    flex: 1;
-    overflow: hidden;
-    background: #000;
+    position: relative; flex: 1; overflow: hidden; background: #000;
   }
-
   #video {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
   }
-
   #vf::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: repeating-linear-gradient(
-      0deg, transparent, transparent 3px,
-      rgba(255,31,31,0.012) 3px, rgba(255,31,31,0.012) 4px
-    );
-    pointer-events: none;
-    z-index: 2;
+    content:''; position:absolute; inset:0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(229,57,53,0.012) 3px, rgba(229,57,53,0.012) 4px);
+    pointer-events:none; z-index:2;
   }
 
   .corner {
-    position: absolute;
-    width: 22px; height: 22px;
-    border-color: var(--g);
-    border-style: solid;
-    z-index: 3;
-    opacity: .9;
+    position:absolute; width:22px; height:22px;
+    border-color:var(--g); border-style:solid; z-index:3; opacity:.85;
   }
   .corner.tl { top:12px; left:12px; border-width:2px 0 0 2px; }
   .corner.tr { top:12px; right:12px; border-width:2px 2px 0 0; }
@@ -152,302 +109,197 @@
   .corner.br { bottom:12px; right:12px; border-width:0 2px 2px 0; }
 
   #xhair {
-    position: absolute;
-    top:50%; left:50%;
-    transform: translate(-50%,-50%);
-    z-index:3; pointer-events:none;
+    position:absolute; top:50%; left:50%;
+    transform:translate(-50%,-50%); z-index:3; pointer-events:none;
     width:36px; height:36px;
   }
   #xhair::before, #xhair::after {
-    content:''; position:absolute; background:rgba(255,31,31,.6);
+    content:''; position:absolute; background:rgba(229,57,53,.55);
   }
   #xhair::before { width:1px; height:100%; left:50%; }
   #xhair::after  { width:100%; height:1px; top:50%; }
 
   #live-tag {
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    z-index: 4;
-    background: linear-gradient(transparent, rgba(0,0,0,.82));
-    padding: 24px 12px 10px;
-    font-size: 0.62rem;
-    line-height: 1.8;
-    color: #fff;
-    pointer-events: none;
-  }
-  #live-tag #lt-coords {
-    color: var(--g);
-    font-weight: bold;
+    position:absolute; bottom:0; left:0; right:0; z-index:4;
+    background:linear-gradient(transparent, rgba(0,0,0,.80));
+    padding:24px 12px 10px; font-size:0.62rem; line-height:1.8;
+    color:var(--g); pointer-events:none;
   }
   #live-tag .addr {
-    color: rgba(255,255,255,.65);
-    font-size: 0.58rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    color:rgba(255,240,240,.65); font-size:0.58rem;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
 
   #controls {
-    flex-shrink: 0;
-    background: #0d0d0d;
-    border-top: 2px solid var(--g);
-    padding: 14px 20px 88px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    z-index: 10;
+    flex-shrink:0; background:rgba(0,0,0,0.85);
+    border-top:1px solid var(--border);
+    padding:14px 20px 18px;
+    display:flex; align-items:center; justify-content:space-between;
+    gap:12px; z-index:10;
   }
 
   .ctrl-btn {
-    background: #111;
-    border: 1px solid var(--border);
-    color: #fff;
-    font-family: 'Orbitron', monospace;
-    font-size: 0.6rem;
-    font-weight: 700;
-    letter-spacing: .1em;
-    padding: 10px 14px;
-    border-radius: 3px;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-    transition: background .15s, box-shadow .15s, border-color .15s;
+    background:var(--card); border:1px solid var(--border); color:#ffffff;
+    font-family:'Orbitron',monospace; font-size:0.6rem; font-weight:700;
+    letter-spacing:.1em; padding:10px 14px; border-radius:3px;
+    cursor:pointer; -webkit-tap-highlight-color:transparent;
+    transition:background .15s, box-shadow .15s;
   }
-  .ctrl-btn:active {
-    background: rgba(255,31,31,.15);
-    border-color: var(--g);
-    box-shadow: 0 0 16px var(--glow);
-  }
+  .ctrl-btn:active { background:rgba(229,57,53,.18); box-shadow:0 0 16px var(--glow); }
 
   #btnCapture {
-    width: 72px; height: 72px;
-    border-radius: 50%;
-    border: 3px solid var(--g);
-    background: rgba(255,31,31,.08);
-    box-shadow: 0 0 24px var(--glow), inset 0 0 12px rgba(255,31,31,.1);
-    flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-    transition: transform .1s, box-shadow .1s;
+    width:68px; height:68px; border-radius:50%;
+    border:3px solid var(--g); background:rgba(229,57,53,.1);
+    box-shadow:0 0 20px var(--glow), inset 0 0 10px rgba(229,57,53,.1);
+    flex-shrink:0; display:flex; align-items:center; justify-content:center;
+    cursor:pointer; -webkit-tap-highlight-color:transparent;
+    transition:transform .1s, box-shadow .1s;
   }
-  #btnCapture:active {
-    transform: scale(.93);
-    box-shadow: 0 0 44px var(--glow);
-  }
-  #btnCapture.disabled { opacity: .3; pointer-events: none; }
+  #btnCapture:active { transform:scale(.93); box-shadow:0 0 40px var(--glow); }
+  #btnCapture.disabled { opacity:.35; pointer-events:none; }
   .shutter-inner {
-    width: 52px; height: 52px;
-    border-radius: 50%;
-    background: var(--g);
-    box-shadow: 0 0 16px var(--glow);
+    width:50px; height:50px; border-radius:50%;
+    background:var(--g); box-shadow:0 0 14px var(--glow);
   }
 
   #flash {
-    position: fixed; inset:0;
-    background: #fff;
-    opacity: 0;
-    pointer-events: none;
-    z-index: 999;
-    transition: opacity .06s;
+    position:fixed; inset:0; background:#fff; opacity:0;
+    pointer-events:none; z-index:999; transition:opacity .06s;
   }
 
-  /* WhatsApp overlay */
-  #wa-overlay {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.88);
-    z-index: 500;
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 18px;
+  /* Upload overlay */
+  #upload-overlay {
+    position:fixed; inset:0; background:rgba(0,0,0,0.88);
+    z-index:500; display:none; flex-direction:column;
+    align-items:center; justify-content:center; gap:16px;
   }
-  #wa-overlay.show { display: flex; }
-  #wa-overlay .wa-box {
-    background: #111;
-    border: 1px solid var(--g);
-    border-top: 3px solid var(--g);
-    border-radius: 6px;
-    padding: 28px 32px;
-    text-align: center;
-    max-width: 300px;
-    width: 90%;
-    box-shadow: 0 0 40px rgba(255,31,31,0.2);
+  #upload-overlay.show { display:flex; }
+  .upload-box {
+    background:var(--card); border:1px solid var(--g);
+    border-radius:8px; padding:28px 32px; text-align:center;
+    max-width:300px; width:90%;
   }
-  #wa-overlay .wa-icon {
-    font-size: 3rem;
-    margin-bottom: 10px;
+  .upload-icon { font-size:2.8rem; margin-bottom:10px; }
+  .upload-box h2 {
+    font-family:'Orbitron',monospace; font-size:.85rem;
+    color:#ffffff; letter-spacing:.12em; margin-bottom:6px;
   }
-  #wa-overlay h2 {
-    font-family: 'Orbitron', monospace;
-    font-size: .85rem;
-    color: #fff;
-    letter-spacing: .14em;
-    margin-bottom: 6px;
+  .upload-box p {
+    font-size:.62rem; color:rgba(255,240,240,.45);
+    line-height:1.7; margin-bottom:14px;
   }
-  #wa-overlay .wa-divider {
-    width: 40px; height: 2px;
-    background: var(--g);
-    margin: 8px auto 12px;
-    border-radius: 1px;
+  #upload-progress {
+    width:100%; height:4px; background:rgba(229,57,53,.15);
+    border-radius:2px; overflow:hidden; margin-bottom:14px;
   }
-  #wa-overlay p {
-    font-size: .65rem;
-    color: rgba(255,255,255,.5);
-    line-height: 1.7;
-    margin-bottom: 18px;
+  #upload-bar {
+    height:100%; width:0%; background:var(--g);
+    transition:width .3s; border-radius:2px;
   }
-  #wa-overlay .wa-num {
-    color: var(--g);
-    font-size: .78rem;
-    letter-spacing: .06em;
-    font-weight: bold;
+  #upload-status {
+    font-size:.6rem; color:rgba(255,240,240,.5);
+    letter-spacing:.06em; margin-bottom:16px;
   }
-  .wa-btn {
-    display: block;
-    width: 100%;
-    padding: 12px;
-    margin-top: 8px;
-    font-family: 'Orbitron', monospace;
-    font-size: .65rem;
-    font-weight: 700;
-    letter-spacing: .12em;
-    border-radius: 3px;
-    cursor: pointer;
-    border: none;
-    -webkit-tap-highlight-color: transparent;
+
+  /* Share overlay */
+  #share-overlay {
+    position:fixed; inset:0; background:rgba(0,0,0,0.88);
+    z-index:500; display:none; flex-direction:column;
+    align-items:center; justify-content:center; gap:16px;
   }
-  .wa-btn.open {
-    background: #25D366;
-    color: #fff;
-    box-shadow: 0 0 16px rgba(37,211,102,0.35);
+  #share-overlay.show { display:flex; }
+  .share-box {
+    background:var(--card); border:1px solid var(--g);
+    border-radius:8px; padding:28px 32px; text-align:center;
+    max-width:300px; width:90%;
   }
-  .wa-btn.skip {
-    background: transparent;
-    border: 1px solid rgba(255,255,255,.15);
-    color: rgba(255,255,255,.35);
-    margin-top: 6px;
+  .share-box h2 {
+    font-family:'Orbitron',monospace; font-size:.85rem;
+    color:#ffffff; letter-spacing:.12em; margin-bottom:6px;
   }
-  .wa-btn.skip:active { background: rgba(255,255,255,.05); }
+  .share-box p {
+    font-size:.6rem; color:rgba(255,240,240,.45);
+    line-height:1.7; margin-bottom:16px;
+  }
+  #preview-thumb {
+    width:100%; border-radius:4px; margin-bottom:12px;
+    border:1px solid var(--border); display:none;
+  }
+  #preview-thumb.show { display:block; }
+
+  .share-btn {
+    display:block; width:100%; padding:13px; margin-top:8px;
+    font-family:'Orbitron',monospace; font-size:.65rem;
+    font-weight:700; letter-spacing:.1em; border-radius:4px;
+    cursor:pointer; border:none; -webkit-tap-highlight-color:transparent;
+  }
+  .share-btn.wa {
+    background:#25D366; color:#fff;
+    box-shadow:0 0 14px rgba(37,211,102,0.35);
+  }
+  .share-btn.copy {
+    background:rgba(229,57,53,.15); color:var(--g);
+    border:1px solid var(--border); margin-top:6px;
+  }
+  .share-btn.skip {
+    background:transparent; border:1px solid var(--border);
+    color:rgba(255,240,240,.35); margin-top:4px;
+  }
 
   /* Gallery drawer */
   #gallery-wrap {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    z-index: 50;
-    transform: translateY(100%);
-    transition: transform .35s cubic-bezier(.4,0,.2,1);
-    background: #0a0a0a;
-    border-top: 2px solid var(--g);
-    border-radius: 14px 14px 0 0;
-    max-height: 80vh;
-    display: flex;
-    flex-direction: column;
+    position:fixed; bottom:0; left:0; right:0; z-index:50;
+    transform:translateY(100%);
+    transition:transform .35s cubic-bezier(.4,0,.2,1);
+    background:var(--bg); border-top:1px solid var(--border);
+    border-radius:14px 14px 0 0; max-height:80vh;
+    display:flex; flex-direction:column;
   }
-  #gallery-wrap.open { transform: translateY(0); }
+  #gallery-wrap.open { transform:translateY(0); }
 
-  #gallery-handle {
-    text-align: center;
-    padding: 10px;
-    cursor: pointer;
-    flex-shrink: 0;
-  }
+  #gallery-handle { text-align:center; padding:10px; cursor:pointer; flex-shrink:0; }
   #gallery-handle::before {
-    content:'';
-    display: inline-block;
-    width: 36px; height: 4px;
-    background: rgba(255,31,31,.4);
-    border-radius: 2px;
+    content:''; display:inline-block; width:36px; height:4px;
+    background:rgba(229,57,53,.35); border-radius:2px;
   }
-
   #gallery-title {
-    font-family: 'Orbitron', monospace;
-    font-size: .7rem;
-    letter-spacing: .18em;
-    color: rgba(255,31,31,.7);
-    padding: 0 14px 8px;
-    flex-shrink: 0;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 10px;
+    font-family:'Orbitron',monospace; font-size:.7rem;
+    letter-spacing:.18em; color:rgba(229,57,53,.7);
+    padding:0 14px 8px; flex-shrink:0;
   }
-
   #gallery-scroll {
-    overflow-y: auto;
-    padding: 0 12px 20px;
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
+    overflow-y:auto; padding:0 12px 20px;
+    display:grid; grid-template-columns:repeat(2,1fr); gap:10px;
   }
 
-  .g-item {
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    overflow: hidden;
-    background: #000;
-  }
-  .g-item img {
-    width:100%; display:block;
-    aspect-ratio: 4/3;
-    object-fit: cover;
-  }
+  .g-item { border:1px solid var(--border); border-radius:4px; overflow:hidden; background:#000; }
+  .g-item img { width:100%; display:block; aspect-ratio:4/3; object-fit:cover; }
   .g-meta {
-    padding: 5px 7px;
-    font-size: 0.55rem;
-    line-height: 1.6;
-    color: rgba(255,255,255,.45);
-    background: #0d0d0d;
+    padding:5px 7px; font-size:0.55rem; line-height:1.6;
+    color:rgba(255,240,240,.5); background:rgba(10,0,0,.97);
   }
-  .g-meta strong { color: var(--g); display:block; }
-
-  .g-actions {
-    display: flex;
-    border-top: 1px solid var(--border);
+  .g-meta strong { color:var(--g); display:block; }
+  .g-actions { display:flex; border-top:1px solid var(--border); }
+  .g-dl, .g-share {
+    flex:1; padding:6px 4px; background:rgba(229,57,53,.07);
+    border:none; color:#ffffff; font-family:'Orbitron',monospace;
+    font-size:.5rem; letter-spacing:.08em; cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
   }
-  .g-dl, .g-wa {
-    flex: 1;
-    padding: 6px 4px;
-    background: rgba(255,31,31,.06);
-    border: none;
-    color: #fff;
-    font-family: 'Orbitron', monospace;
-    font-size: .5rem;
-    letter-spacing: .08em;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .g-dl:active { background: rgba(255,31,31,.2); }
-  .g-wa {
-    background: rgba(37,211,102,.06);
-    color: #25D366;
-    border-left: 1px solid var(--border);
-  }
-  .g-wa:active { background: rgba(37,211,102,.18); }
+  .g-dl:active, .g-share:active { background:rgba(229,57,53,.2); }
+  .g-share { background:rgba(37,211,102,.06); color:#25D366; border-left:1px solid var(--border); }
 
   #no-photos {
-    grid-column: span 2;
-    text-align: center;
-    color: rgba(255,255,255,.15);
-    font-size: .7rem;
-    padding: 30px 0;
+    grid-column:span 2; text-align:center;
+    color:rgba(255,240,240,.2); font-size:.7rem; padding:30px 0;
   }
 
   #toast {
-    position: fixed;
-    top: 60px; left: 50%;
-    transform: translateX(-50%);
-    background: rgba(255,31,31,.12);
-    border: 1px solid var(--g);
-    color: #fff;
-    font-size: .7rem;
-    letter-spacing: .08em;
-    padding: 8px 18px;
-    border-radius: 3px;
-    z-index: 600;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity .3s;
-    white-space: nowrap;
+    position:fixed; top:60px; left:50%; transform:translateX(-50%);
+    background:rgba(229,57,53,0.12); border:1px solid var(--g);
+    color:#ffffff; font-size:.7rem; letter-spacing:.08em;
+    padding:8px 18px; border-radius:3px; z-index:600;
+    opacity:0; pointer-events:none; transition:opacity .3s; white-space:nowrap;
   }
   #toast.show { opacity:1; }
 
@@ -458,19 +310,16 @@
 <div id="app">
 
   <div id="topbar">
-    <!-- LOGO SLOT: replace src="" with your logo image path/URL -->
-    <div id="logo-slot">
-      <img id="logo-img" src="logo.png" alt="Logo">
-      <div class="logo-placeholder">YOUR<br>LOGO</div>
+    <div id="topbar-left">
+      <div id="logo-slot" title="Tap to set logo">
+        <img id="logo-img" alt="logo">
+        <span class="logo-placeholder">YOUR<br>LOGO</span>
+      </div>
+      <input type="file" id="logo-input" accept="image/*">
+      <h1>GEO<span>CAM</span></h1>
     </div>
-
-    <div id="topbar-center">
-      <h1>GEOCAM</h1>
-      <div id="topbar-sub">FIELD CAPTURE SYSTEM</div>
-    </div>
-
     <div id="gps-status">
-      <span id="gps-label">● ACQUIRING...</span>
+      <span id="gps-label">● ACQUIRING GPS...</span>
     </div>
   </div>
 
@@ -490,34 +339,43 @@
   <div id="controls">
     <button class="ctrl-btn" id="btnGallery">
       ⊞ GALLERY<br>
-      <span id="photo-count" style="font-size:.55rem;opacity:.5;color:#fff">0 photos</span>
+      <span id="photo-count" style="font-size:.55rem;opacity:.6">0 photos</span>
     </button>
     <div id="btnCapture" class="disabled">
       <div class="shutter-inner"></div>
     </div>
     <button class="ctrl-btn" id="btnSwitch">
       ⇄ FLIP<br>
-      <span style="font-size:.55rem;opacity:.5;color:#fff">camera</span>
+      <span style="font-size:.55rem;opacity:.6">camera</span>
     </button>
   </div>
 
 </div>
 
-<!-- WhatsApp overlay -->
-<div id="wa-overlay">
-  <div class="wa-box">
-    <div class="wa-icon">📸</div>
-    <h2>PHOTO CAPTURED</h2>
-    <div class="wa-divider"></div>
-    <p>
-      Photo saved to your device.<br>
-      Send location details to:<br>
-      <span class="wa-num">+91 82401 47908</span>
-    </p>
-    <button class="wa-btn open" id="waOpenBtn">
-      ✓ OPEN WHATSAPP &amp; SEND
+<!-- Upload progress overlay -->
+<div id="upload-overlay">
+  <div class="upload-box">
+    <div class="upload-icon">⬆️</div>
+    <h2>UPLOADING...</h2>
+    <p>Sending photo to server,<br>please wait...</p>
+    <div id="upload-progress"><div id="upload-bar"></div></div>
+    <div id="upload-status">Connecting...</div>
+  </div>
+</div>
+
+<!-- Share overlay -->
+<div id="share-overlay">
+  <div class="share-box">
+    <h2>📸 READY TO SEND</h2>
+    <img id="preview-thumb" alt="preview">
+    <p id="share-desc">Photo uploaded. Tap below to send via WhatsApp.</p>
+    <button class="share-btn wa" id="btnSendWA">
+      📲 SEND ON WHATSAPP
     </button>
-    <button class="wa-btn skip" id="waSkipBtn">
+    <button class="share-btn copy" id="btnCopyLink">
+      🔗 COPY PHOTO LINK
+    </button>
+    <button class="share-btn skip" id="btnSkip">
       SKIP
     </button>
   </div>
@@ -537,24 +395,22 @@
 <canvas id="canvas"></canvas>
 
 <script>
-// ── Config ───────────────────────────────────────────────
+// ════════════════════════════════════════════════
+//  ▶▶  PASTE YOUR IMGBB API KEY HERE  ◀◀
+// ════════════════════════════════════════════════
+const IMGBB_API_KEY = '22d5d76fd622639c5148edfbf69d2b85';
+// ════════════════════════════════════════════════
+
 const WA_NUMBER = '918240147908';
 
-// ── Logo auto-show if src set ────────────────────────────
-const logoImg = document.getElementById('logo-img');
-const logoPlaceholder = document.querySelector('.logo-placeholder');
-if (logoImg.src && logoImg.src !== window.location.href) {
-  logoImg.style.display = 'block';
-  logoPlaceholder.style.display = 'none';
-}
-
 // ── Globals ──────────────────────────────────────────────
-let stream      = null;
-let facingMode  = 'environment';
-let gps         = null;
-let address     = '';
-let photoCount  = 0;
-let pendingWAMsg = '';
+let stream       = null;
+let facingMode   = 'environment';
+let gps          = null;
+let address      = '';
+let photoCount   = 0;
+let pendingMsg   = '';
+let pendingImgURL = '';
 let pendingDataURL = '';
 
 const video         = document.getElementById('video');
@@ -567,7 +423,25 @@ const flash         = document.getElementById('flash');
 const galleryWrap   = document.getElementById('gallery-wrap');
 const galleryScroll = document.getElementById('gallery-scroll');
 const noPhotos      = document.getElementById('no-photos');
-const waOverlay     = document.getElementById('wa-overlay');
+const uploadOverlay = document.getElementById('upload-overlay');
+const shareOverlay  = document.getElementById('share-overlay');
+
+// ── Logo upload ──────────────────────────────────────────
+document.getElementById('logo-slot').addEventListener('click', () => {
+  document.getElementById('logo-input').click();
+});
+document.getElementById('logo-input').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = document.getElementById('logo-img');
+    img.src = ev.target.result;
+    img.classList.add('loaded');
+    document.querySelector('#logo-slot .logo-placeholder').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+});
 
 // ── Toast ────────────────────────────────────────────────
 function toast(msg, duration = 2200) {
@@ -609,13 +483,11 @@ async function startCamera() {
 // ── GPS + Reverse Geocode ────────────────────────────────
 function startGPS() {
   if (!navigator.geolocation) { toast('⚠ GPS not supported'); return; }
-
   navigator.geolocation.watchPosition(async pos => {
     gps = { lat: pos.coords.latitude, lng: pos.coords.longitude, acc: pos.coords.accuracy };
     const fmt = n => n.toFixed(6);
     document.getElementById('lt-coords').textContent = `LAT: ${fmt(gps.lat)}°  |  LNG: ${fmt(gps.lng)}°`;
     document.getElementById('gps-label').textContent = `● GPS ±${gps.acc.toFixed(0)}m`;
-
     try {
       const r = await fetch(
         `https://nominatim.openstreetmap.org/reverse?lat=${gps.lat}&lon=${gps.lng}&format=json`,
@@ -635,8 +507,73 @@ function startGPS() {
   }, { enableHighAccuracy: true, maximumAge: 3000, timeout: 20000 });
 }
 
+// ── Build WhatsApp message ───────────────────────────────
+function buildWAMsg(imgURL) {
+  const lat     = gps ? gps.lat.toFixed(6) : 'N/A';
+  const lng     = gps ? gps.lng.toFixed(6) : 'N/A';
+  const acc     = gps ? `±${gps.acc.toFixed(0)}m` : '';
+  const now     = new Date();
+  const dateStr = now.toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'});
+  const timeStr = now.toLocaleTimeString('en-GB');
+  return `📍 *GeoCam Photo*
+━━━━━━━━━━━━━━
+🌐 LAT: ${lat}°
+🌐 LNG: ${lng}°
+📏 Accuracy: ${acc}
+🏠 ${address || 'Address unavailable'}
+📅 ${dateStr} — ${timeStr}
+━━━━━━━━━━━━━━
+🗺 Maps: https://maps.google.com/?q=${lat},${lng}
+🖼 Photo: ${imgURL}`;
+}
+
+// ── Upload to ImgBB ──────────────────────────────────────
+async function uploadToImgBB(dataURL) {
+  const bar    = document.getElementById('upload-bar');
+  const status = document.getElementById('upload-status');
+
+  // Animate progress bar
+  let progress = 0;
+  const ticker = setInterval(() => {
+    progress = Math.min(progress + Math.random() * 12, 88);
+    bar.style.width = progress + '%';
+  }, 300);
+
+  try {
+    status.textContent = 'Uploading photo...';
+    const base64 = dataURL.split(',')[1];
+    const formData = new FormData();
+    formData.append('image', base64);
+    formData.append('key', IMGBB_API_KEY);
+
+    const res = await fetch('https://api.imgbb.com/1/upload', {
+      method: 'POST',
+      body: formData
+    });
+    const json = await res.json();
+
+    clearInterval(ticker);
+
+    if (json.success) {
+      bar.style.width = '100%';
+      status.textContent = 'Upload complete!';
+      await new Promise(r => setTimeout(r, 500));
+      return json.data.url;
+    } else {
+      throw new Error(json.error?.message || 'Upload failed');
+    }
+  } catch (err) {
+    clearInterval(ticker);
+    bar.style.width = '100%';
+    bar.style.background = '#ff5252';
+    status.textContent = '⚠ Upload failed: ' + err.message;
+    await new Promise(r => setTimeout(r, 1500));
+    return null;
+  }
+}
+
 // ── Capture ──────────────────────────────────────────────
-function capture() {
+async function capture() {
   if (btnCapture.classList.contains('disabled')) return;
 
   const W = video.videoWidth  || video.offsetWidth  || 1280;
@@ -658,42 +595,72 @@ function capture() {
   const dataURL = canvas.toDataURL('image/jpeg', 0.93);
   pendingDataURL = dataURL;
 
+  // Auto download
   triggerDownload(dataURL);
 
-  const lat     = gps ? gps.lat.toFixed(6) : 'N/A';
-  const lng     = gps ? gps.lng.toFixed(6) : 'N/A';
-  const acc     = gps ? `±${gps.acc.toFixed(0)}m` : '';
-  const now     = new Date();
-  const dateStr = now.toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'});
-  const timeStr = now.toLocaleTimeString('en-GB');
+  // Add to gallery immediately
+  saveToGallery(dataURL, null);
 
-  pendingWAMsg = encodeURIComponent(
-`📍 *GeoCam Photo*
-━━━━━━━━━━━━━━
-🌐 LAT: ${lat}°
-🌐 LNG: ${lng}°
-📏 Accuracy: ${acc}
-🏠 ${address || 'Address unavailable'}
-📅 ${dateStr} — ${timeStr}
-━━━━━━━━━━━━━━
-🗺 Google Maps: https://maps.google.com/?q=${lat},${lng}`
-  );
+  // Check if API key is set
+  if (!IMGBB_API_KEY || IMGBB_API_KEY === 'YOUR_KEY_HERE') {
+    // No key — just send text via WhatsApp
+    pendingMsg = buildWAMsg('(photo saved to your device)');
+    document.getElementById('share-desc').textContent = 'No ImgBB key set. Sending location only.';
+    document.getElementById('preview-thumb').classList.remove('show');
+    shareOverlay.classList.add('show');
+    return;
+  }
 
-  saveToGallery(dataURL);
-  waOverlay.classList.add('show');
+  // Show upload overlay
+  document.getElementById('upload-bar').style.width = '0%';
+  document.getElementById('upload-bar').style.background = 'var(--g)';
+  document.getElementById('upload-status').textContent = 'Connecting...';
+  uploadOverlay.classList.add('show');
+
+  const imgURL = await uploadToImgBB(dataURL);
+  uploadOverlay.classList.remove('show');
+
+  if (imgURL) {
+    pendingImgURL = imgURL;
+    pendingMsg = buildWAMsg(imgURL);
+
+    // Show preview thumb
+    const thumb = document.getElementById('preview-thumb');
+    thumb.src = dataURL;
+    thumb.classList.add('show');
+    document.getElementById('share-desc').textContent = 'Photo uploaded! Tap below to send on WhatsApp with photo link.';
+  } else {
+    // Upload failed fallback
+    pendingMsg = buildWAMsg('(upload failed — photo saved to device)');
+    document.getElementById('preview-thumb').classList.remove('show');
+    document.getElementById('share-desc').textContent = 'Upload failed. Sending location details only.';
+  }
+
+  shareOverlay.classList.add('show');
 }
 
-// ── WhatsApp ─────────────────────────────────────────────
-function openWhatsApp() {
-  waOverlay.classList.remove('show');
-  window.open(`https://wa.me/${WA_NUMBER}?text=${pendingWAMsg}`, '_blank');
+// ── Share buttons ────────────────────────────────────────
+document.getElementById('btnSendWA').addEventListener('click', () => {
+  shareOverlay.classList.remove('show');
+  window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(pendingMsg)}`, '_blank');
   toast('📲 Opening WhatsApp...', 2500);
-}
+});
 
-document.getElementById('waOpenBtn').addEventListener('click', openWhatsApp);
-document.getElementById('waSkipBtn').addEventListener('click', () => {
-  waOverlay.classList.remove('show');
-  toast('Skipped WhatsApp');
+document.getElementById('btnCopyLink').addEventListener('click', () => {
+  if (pendingImgURL) {
+    navigator.clipboard.writeText(pendingImgURL).then(() => {
+      toast('🔗 Photo link copied!');
+    }).catch(() => {
+      toast('⚠ Copy failed');
+    });
+  } else {
+    toast('⚠ No link available');
+  }
+});
+
+document.getElementById('btnSkip').addEventListener('click', () => {
+  shareOverlay.classList.remove('show');
+  toast('Skipped');
 });
 
 // ── GeoTag Stamp ─────────────────────────────────────────
@@ -709,18 +676,14 @@ function stampGeoTag(W, H) {
   const timeStr = now.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
 
   const barH = 130 * scale;
-
-  // Dark bar
-  ctx.fillStyle = 'rgba(0,0,0,0.75)';
+  ctx.fillStyle = 'rgba(0,0,0,0.72)';
   ctx.fillRect(0, H - barH, W, barH);
 
-  // Red accent line
-  ctx.fillStyle = '#ff1f1f';
-  ctx.fillRect(0, H - barH, W, 3 * scale);
+  ctx.fillStyle = '#e53935';
+  ctx.fillRect(0, H - barH, W, 2.5 * scale);
 
-  // Corner brackets
   const bLen = 32 * scale, bW = 2.5 * scale;
-  ctx.fillStyle = '#ff1f1f';
+  ctx.fillStyle = '#e53935';
   [[0,0],[W,0],[0,H-barH-2*scale],[W,H-barH-2*scale]].forEach(([cx,cy],i) => {
     const xDir = cx===0?1:-1, yDir = i<2?1:-1;
     ctx.fillRect(cx, cy, xDir*bLen, bW*yDir);
@@ -732,35 +695,31 @@ function stampGeoTag(W, H) {
   const fSmall = Math.max(17*scale, 10);
   const baseY  = H - barH + 36*scale;
 
-  // Coords — white text
   ctx.font = `bold ${fBig}px "Courier New", monospace`;
-  ctx.fillStyle = '#ffffff';
+  ctx.fillStyle = '#e53935';
   ctx.textAlign = 'left';
   ctx.fillText(`LAT  ${lat}°`, pad, baseY);
   ctx.fillText(`LNG  ${lng}°`, pad, baseY + fBig*1.35);
 
-  // Accuracy — dim white
   ctx.font = `${fSmall}px "Courier New", monospace`;
-  ctx.fillStyle = 'rgba(255,255,255,.5)';
+  ctx.fillStyle = 'rgba(255,240,240,.55)';
   ctx.fillText(`ACC: ${acc}`, pad, baseY + fBig*2.7);
 
-  // Address
   ctx.font = `${fSmall}px "Courier New", monospace`;
-  ctx.fillStyle = 'rgba(255,255,255,.7)';
+  ctx.fillStyle = 'rgba(255,255,255,.75)';
   const maxW = W * 0.95;
   let addrText = addr;
   while (addrText.length > 4 && ctx.measureText(addrText).width > maxW) addrText = addrText.slice(0,-4)+'...';
   ctx.fillText(addrText, pad, baseY + fBig*3.8);
 
-  // Date / time — right side red
   ctx.textAlign = 'right';
   ctx.font = `bold ${fMed}px "Courier New", monospace`;
-  ctx.fillStyle = '#ff1f1f';
+  ctx.fillStyle = '#ffffff';
   ctx.fillText(dateStr, W-pad, baseY);
   ctx.fillText(timeStr, W-pad, baseY + fMed*1.35);
 
   ctx.font = `${fSmall}px "Courier New", monospace`;
-  ctx.fillStyle = 'rgba(255,255,255,.35)';
+  ctx.fillStyle = 'rgba(229,57,53,.55)';
   ctx.fillText('GEOCAM v2.0', W-pad, baseY + fMed*2.7);
   ctx.textAlign = 'left';
 }
@@ -793,7 +752,7 @@ function triggerDownload(dataURL) {
 }
 
 // ── In-app Gallery ───────────────────────────────────────
-function saveToGallery(dataURL) {
+function saveToGallery(dataURL, imgURL) {
   photoCount++;
   document.getElementById('photo-count').textContent = photoCount + ' photo' + (photoCount!==1?'s':'');
   document.getElementById('gc-count').textContent = photoCount;
@@ -810,27 +769,18 @@ function saveToGallery(dataURL) {
     <div class="g-meta">
       <strong>#${String(photoCount).padStart(3,'0')} · ${time}</strong>
       ${lat}<br>${lng}<br>
-      <span style="color:rgba(255,255,255,.3);font-size:.5rem">${(address||'').slice(0,40)}</span>
+      <span style="color:rgba(255,240,240,.35);font-size:.5rem">${(address||'').slice(0,40)}</span>
     </div>
     <div class="g-actions">
       <button class="g-dl">↓ SAVE</button>
-      <button class="g-wa">📲 WHATSAPP</button>
+      <button class="g-share">📲 SEND</button>
     </div>
   `;
 
   item.querySelector('.g-dl').addEventListener('click', () => triggerDownload(dataURL));
-  item.querySelector('.g-wa').addEventListener('click', () => {
-    pendingWAMsg = encodeURIComponent(
-`📍 *GeoCam Photo*
-━━━━━━━━━━━━━━
-🌐 LAT: ${gps?gps.lat.toFixed(6):'N/A'}°
-🌐 LNG: ${gps?gps.lng.toFixed(6):'N/A'}°
-🏠 ${address||'N/A'}
-📅 ${new Date().toLocaleString('en-GB')}
-━━━━━━━━━━━━━━
-🗺 https://maps.google.com/?q=${gps?gps.lat:0},${gps?gps.lng:0}`
-    );
-    window.open(`https://wa.me/${WA_NUMBER}?text=${pendingWAMsg}`, '_blank');
+  item.querySelector('.g-share').addEventListener('click', () => {
+    const msg = buildWAMsg(imgURL || '(no link)');
+    window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
   });
 
   galleryScroll.prepend(item);
