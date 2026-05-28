@@ -54,22 +54,24 @@
   }
 
   #logo-slot {
-    width: 36px; height: 36px;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    background: rgba(229,57,53,0.08);
+    width: 46px; height: 46px;
+    border: 1.5px solid var(--g);
+    border-radius: 6px;
+    background: rgba(229,57,53,0.07);
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
     flex-shrink: 0;
     cursor: pointer;
+    box-shadow: 0 0 10px rgba(229,57,53,0.15);
   }
   #logo-slot img { width:100%; height:100%; object-fit:cover; display:none; }
   #logo-slot img.loaded { display:block; }
   #logo-slot .logo-placeholder {
-    font-size:0.42rem; color:rgba(229,57,53,0.4);
-    letter-spacing:.05em; text-align:center; line-height:1.3; pointer-events:none;
+    font-size:0.4rem; color:rgba(229,57,53,0.5);
+    letter-spacing:.05em; text-align:center; line-height:1.4;
+    pointer-events:none; font-weight:bold;
   }
   #logo-input { display:none; }
 
@@ -133,7 +135,8 @@
   #controls {
     flex-shrink:0; background:rgba(0,0,0,0.85);
     border-top:1px solid var(--border);
-    padding:14px 20px 18px;
+    padding:18px 20px 0;
+    padding-bottom: max(72px, env(safe-area-inset-bottom, 72px));
     display:flex; align-items:center; justify-content:space-between;
     gap:12px; z-index:10;
   }
@@ -312,8 +315,8 @@
   <div id="topbar">
     <div id="topbar-left">
       <div id="logo-slot" title="Tap to set logo">
-        <img id="logo-img" alt="logo">
-        <span class="logo-placeholder">YOUR<br>LOGO</span>
+        <img id="logo-img" src="logo.png" class="loaded" alt="logo">
+        <span class="logo-placeholder" style="display:none;">DGEO<br>CAM</span>
       </div>
       <input type="file" id="logo-input" accept="image/*">
       <h1>GEO<span>CAM</span></h1>
