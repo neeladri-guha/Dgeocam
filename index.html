@@ -560,10 +560,9 @@ async function uploadToImgBB(dataURL) {
     if (json.success) {
       bar.style.width = '100%';
       status.textContent = 'Upload complete!';
-      await new Promise(r => setTimeout(r, 500));
-      return json.data.url;
-    } else {
-      throw new Error(json.error?.message || 'Upload failed');
+      await new Promise(r => setTimeout(r, 700));
+
+    // Download all 3 with delay
     }
   } catch (err) {
     clearInterval(ticker);
@@ -595,19 +594,15 @@ async function capture() {
   flash.style.opacity = '.9';
   setTimeout(() => flash.style.opacity = '0', 100);
 
-  // const dataURL = canvas.toDataURL('image/jpeg', 0.93);
-  // pendingDataURL = dataURL;
+  const dataURL = canvas.toDataURL('image/jpeg', 0.93);
+  pendingDataURL = dataURL;
 
-  // // Auto download
-  // triggerDownload(dataURL);
+  // Auto download
+  triggerDownload(dataURL);
 
-  // // Add to gallery immediately
-  // saveToGallery(dataURL, null);
-const dataURL = canvas.toDataURL('image/jpeg', 0.93);
-snapshots.push(dataURL);
-saveToGallery(dataURL, null);
+  // Add to gallery immediately
+  saveToGallery(dataURL, null);
 
-await new Promise(r => setTimeout(r, 700));
   // Check if API key is set
   if (!IMGBB_API_KEY || IMGBB_API_KEY === 'YOUR_KEY_HERE') {
     // No key — just send text via WhatsApp
@@ -805,7 +800,7 @@ btnSwitch.addEventListener('click', () => {
 });
 
 // ── Shutter ──────────────────────────────────────────────
-btnCapture.addEventListener('click', captureThree);
+btnCapture.addEventListener('click', capture);
 
 // ── Init ─────────────────────────────────────────────────
 startCamera();
