@@ -595,15 +595,19 @@ async function capture() {
   flash.style.opacity = '.9';
   setTimeout(() => flash.style.opacity = '0', 100);
 
-  const dataURL = canvas.toDataURL('image/jpeg', 0.93);
-  pendingDataURL = dataURL;
+  // const dataURL = canvas.toDataURL('image/jpeg', 0.93);
+  // pendingDataURL = dataURL;
 
-  // Auto download
-  triggerDownload(dataURL);
+  // // Auto download
+  // triggerDownload(dataURL);
 
-  // Add to gallery immediately
-  saveToGallery(dataURL, null);
+  // // Add to gallery immediately
+  // saveToGallery(dataURL, null);
+const dataURL = canvas.toDataURL('image/jpeg', 0.93);
+snapshots.push(dataURL);
+saveToGallery(dataURL, null);
 
+await new Promise(r => setTimeout(r, 700));
   // Check if API key is set
   if (!IMGBB_API_KEY || IMGBB_API_KEY === 'YOUR_KEY_HERE') {
     // No key — just send text via WhatsApp
@@ -801,11 +805,101 @@ btnSwitch.addEventListener('click', () => {
 });
 
 // ── Shutter ──────────────────────────────────────────────
-btnCapture.addEventListener('click', capture);
+btnCapture.addEventListener('click', captureThree);
 
 // ── Init ─────────────────────────────────────────────────
 startCamera();
 startGPS();
+// ── Capture 3 Photos ─────────────────────────────────────
+async function captureThree() {
+  if (btnCapture.classList.contains('disabled')) return;
+  btnCapture.classList.add('disabled');
+
+  const snapshots = [];
+
+  for (let i = 0; i < 3; i++) {
+    toast(`📸 Photo ${i + 1} of 3...`);
+
+    const W = video.videoWidth  || 1280;
+    const H = video.videoHeight || 960;
+    canvas.width = W; canvas.height = H;
+
+    if (facingMode === 'user') {
+      ctx.save(); ctx.translate(W, 0); ctx.scale(-1, 1);
+      ctx.drawImage(video, 0, 0, W, H); ctx.restore();
+    } else {
+      ctx.drawImage(video, 0, 0, W, H);
+    }
+
+    stampGeoTag(W, H);
+
+    flash.style.opacity = '.9';
+    setTimeout(() => flash.style.opacity = '0', 100);
+
+    const dataURL = canvas.toDataURL('image/jpeg', 0.93);
+    snapshots.push(dataURL);
+    // triggerDownload(dataURL);
+    saveToGallery(dataURL, null);
+
+    await new Promise(r => setTimeout(r, 700));
+  }
+  }
+
+  // Download all 3 with delay
+  for (let i = 0; i < snapshots.length; i++) {
+    await new Promise(r => setTimeout(r, i * 1200));
+    triggerDownload(snapshots[i]);
+  }
+
+  // Upload all 3
+  // Upload all 3
+  const urls = [];
+  document.getElementById('upload-bar').style.width = '0%';
+  document.getElementById('upload-bar').style.background = 'var(--g)';
+  uploadOverlay.classList.add('show');
+
+  for (let i = 0; i < 3; i++) {
+    document.getElementById('upload-status').textContent = `Uploading photo ${i + 1} of 3...`;
+    document.getElementById('upload-bar').style.width = `${((i) / 3) * 100}%`;
+    const url = await uploadToImgBB(snapshots[i]);
+    urls.push(url || '(upload failed)');
+  }
+
+  document.getElementById('upload-bar').style.width = '100%';
+  uploadOverlay.classList.remove('show');
+
+  // Build WhatsApp message with all 3 links
+  const lat = gps ? gps.lat.toFixed(6) : 'N/A';
+  const lng = gps ? gps.lng.toFixed(6) : 'N/A';
+  const acc = gps ? `±${gps.acc.toFixed(0)}m` : '';
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'});
+  const timeStr = now.toLocaleTimeString('en-GB');
+
+  pendingImgURL = urls[0];
+  pendingMsg = `📍 *GeoCam — 3 Photos*
+━━━━━━━━━━━━━━
+🌐 LAT: ${lat}°
+🌐 LNG: ${lng}°
+📏 Accuracy: ${acc}
+🏠 ${address || 'Address unavailable'}
+📅 ${dateStr} — ${timeStr}
+━━━━━━━━━━━━━━
+🖼 Photo 1: ${urls[0]}
+🖼 Photo 2: ${urls[1]}
+🖼 Photo 3: ${urls[2]}
+━━━━━━━━━━━━━━
+🗺 Maps: https://maps.google.com/?q=${lat},${lng}`;
+
+  // Show preview of first photo
+  const thumb = document.getElementById('preview-thumb');
+  thumb.src = snapshots[0];
+  thumb.classList.add('show');
+  document.getElementById('share-desc').textContent = '3 photos uploaded! Tap to send all links on WhatsApp.';
+
+  shareOverlay.classList.add('show');
+  btnCapture.classList.remove('disabled');
+}
 </script>
 </body>
 </html>
